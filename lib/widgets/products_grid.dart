@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_shopping_app/providers/products_provider.dart';
+import 'package:flutter_shopping_app/providers/products.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/product.dart';
 import './product_item.dart';
 
 class ProductsGrid extends StatelessWidget {
+  final bool _isFavorite;
+
+  ProductsGrid(this._isFavorite);
+
   @override
   Widget build(BuildContext context) {
-    final ProductsProvider productsData = Provider.of<ProductsProvider>(context);
-    final List<Product> products = productsData.items;
+    final Products productsData = Provider.of<Products>(context);
+    final List<Product> products = _isFavorite
+        ? productsData.items.where((product) => product.isFavorite).toList()
+        : productsData.items;
 
     return GridView.builder(
       padding: const EdgeInsets.all(10),

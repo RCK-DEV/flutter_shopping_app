@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-
-import 'package:flutter_shopping_app/screens/product_detail_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../screens/product_detail_screen.dart';
 import '../providers/product.dart';
+import '../providers/cart.dart';
 
 class ProductItem extends StatelessWidget {
   @override
@@ -22,34 +22,38 @@ class ProductItem extends StatelessWidget {
             fit: BoxFit.cover,
           ),
           footer: GridTileBar(
-            leading: Consumer<Product>(
-              builder: (context, product, _) {
-                return IconButton(
-                  onPressed: () {
-                    product.toggleFavoriteStatus();
-                  },
-                  icon: Icon(
-                    product.isFavorite ? Icons.favorite : Icons.favorite_border,
-                  ),
-                  color: Theme.of(context).colorScheme.secondary,
-                );
-              },
-            ),
+            leading: buildFavoriteButton(),
             title: Text(
               product.title,
               textAlign: TextAlign.center,
             ),
-            trailing: IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.shopping_cart,
-              ),
-              color: Theme.of(context).colorScheme.secondary,
-            ),
+            trailing: buildCartButton(context, product),
             backgroundColor: Colors.black87,
           ),
         ),
       ),
+    );
+  }
+
+  IconButton buildCartButton(BuildContext context, Product product) {
+    final Cart cart = Provider.of<Cart>(context, listen: false);
+
+    return IconButton(
+      onPressed: () => cart.addItem(product.id, product.price, product.title),
+      icon: Icon(Icons.shopping_cart),
+      color: Theme.of(context).colorScheme.secondary,
+    );
+  }
+
+  Consumer<Product> buildFavoriteButton() {
+    return Consumer<Product>(
+      builder: (context, product, _) {
+        return IconButton(
+          onPressed: () => product.toggleFavoriteStatus(),
+          icon: Icon(product.isFavorite ? Icons.favorite : Icons.favorite_border),
+          color: Theme.of(context).colorScheme.secondary,
+        );
+      },
     );
   }
 }
