@@ -37,9 +37,23 @@ class ProductItem extends StatelessWidget {
 
   IconButton buildCartButton(BuildContext context, Product product) {
     final Cart cart = Provider.of<Cart>(context, listen: false);
-
     return IconButton(
-      onPressed: () => cart.addItem(product.id, product.price, product.title),
+      onPressed: () {
+        cart.addItem(product.id, product.price, product.title);
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Item added to cart!'),
+          duration: Duration(seconds: 2),
+          action: SnackBarAction(
+            label: 'UNDO',
+            onPressed: () {
+              cart.removeSingleItem(product.id);
+            },
+          ),
+        ));
+        // Scaffold.of(context)
+        //     .showSnackBar(SnackBar(content: Text('data'))); // Connects to the nearest Scaffold
+      },
       icon: Icon(Icons.shopping_cart),
       color: Theme.of(context).colorScheme.secondary,
     );

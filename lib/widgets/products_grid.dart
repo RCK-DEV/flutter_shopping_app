@@ -17,6 +17,10 @@ class ProductsGrid extends StatelessWidget {
         ? productsData.items.where((product) => product.isFavorite).toList()
         : productsData.items;
 
+    return _buildGridView(products);
+  }
+
+  GridView _buildGridView(List<Product> products) {
     return GridView.builder(
       padding: const EdgeInsets.all(10),
       itemCount: products.length,

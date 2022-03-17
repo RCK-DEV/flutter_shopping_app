@@ -12,6 +12,8 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
 
+    print('CartScreen Widget tree rebuild..');
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Your cart'),
