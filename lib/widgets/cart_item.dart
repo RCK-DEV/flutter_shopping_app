@@ -44,7 +44,6 @@ class CartItem extends StatelessWidget {
             );
           },
         );
-        return null;
       },
       background: Container(
         color: Theme.of(context).errorColor,

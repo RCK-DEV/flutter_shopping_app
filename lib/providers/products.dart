@@ -40,9 +40,28 @@ class Products with ChangeNotifier {
 
   Product findById(String id) => _items.firstWhere((product) => product.id == id);
 
-  void addProduct() {
+  void addProduct(Product newProduct) {
     // _items.add(product);
-    print('ProductsProvider listeners called');
+    if (newProduct == null) return;
+    _items.add(Product(
+        id: DateTime.now().toString(),
+        title: newProduct.title,
+        description: newProduct.description,
+        price: newProduct.price,
+        imageUrl: newProduct.imageUrl));
+
+    notifyListeners();
+  }
+
+  void updateProduct(Product product) {
+    final existingProductIndex = _items.indexWhere((element) => element.id == product.id);
+    _items[existingProductIndex] = product;
+
+    notifyListeners();
+  }
+
+  void deleteProduct(String productId) {
+    _items.removeWhere((element) => element.id == productId);
     notifyListeners();
   }
 }
