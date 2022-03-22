@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'product.dart';
 
@@ -40,17 +42,31 @@ class Products with ChangeNotifier {
 
   Product findById(String id) => _items.firstWhere((product) => product.id == id);
 
-  void addProduct(Product newProduct) {
-    // _items.add(product);
-    if (newProduct == null) return;
-    _items.add(Product(
-        id: DateTime.now().toString(),
-        title: newProduct.title,
-        description: newProduct.description,
-        price: newProduct.price,
-        imageUrl: newProduct.imageUrl));
+  Future<void> addProduct(Product newProduct) {
+    if (newProduct == null) return Future.error('Provided product is empty.');
+    final url = Uri.https(
+        'flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app',
+        '/products.json');
 
-    notifyListeners();
+    return http
+        .post(url,
+            body: json.encode({
+              'title': newProduct.title,
+              'description': newProduct.description,
+              'price': newProduct.price,
+              'imageUrl': newProduct.imageUrl,
+              'isFavorite': newProduct.isFavorite,
+            }))
+        .then((response) {
+      _items.add(Product(
+          id: json.decode(response.body)['name'],
+          title: newProduct.title,
+          description: newProduct.description,
+          price: newProduct.price,
+          imageUrl: newProduct.imageUrl));
+
+      notifyListeners();
+    });
   }
 
   void updateProduct(Product product) {
