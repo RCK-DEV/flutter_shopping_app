@@ -37,12 +37,16 @@ class UserProductsScreen extends StatelessWidget {
               onRefresh: () => _refreshProducts(context),
               child: Padding(
                 padding: EdgeInsets.all(8),
-                child: SingleChildScrollView(
-                  child: Column(
-                      children: products.map((product) {
-                    return UserProductItem(product.id, product.title, product.imageUrl);
-                  }).toList()),
-                ),
+                child: ListView.builder(
+                    itemCount: products.length,
+                    itemBuilder: ((context, index) {
+                      return Column(
+                        children: [
+                          UserProductItem(
+                              products[index].id, products[index].title, products[index].imageUrl)
+                        ],
+                      );
+                    })),
               ),
             )
           : Padding(
