@@ -5,6 +5,9 @@ import 'package:http/http.dart' as http;
 import 'product.dart';
 
 class Products with ChangeNotifier {
+  final url = Uri.https('flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app',
+      '/products.json');
+
   List<Product> _items = [
     Product(
       id: 'p1',
@@ -42,12 +45,32 @@ class Products with ChangeNotifier {
 
   Product findById(String id) => _items.firstWhere((product) => product.id == id);
 
+  Future<void> fetchAndSetProducts() async {
+    try {
+      final response = await http.get(url);
+      print(json.decode(response.body));
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final List<Product> fetchedProducts = [];
+      extractedData.forEach((productId, productData) {
+        final Product product = Product(
+            id: productId,
+            title: productData['title'],
+            description: productData['description'],
+            price: productData['price'],
+            imageUrl: productData['imageUrl'],
+            isFavorite: productData['isFavorite']);
+
+        fetchedProducts.add(product);
+      });
+      _items = fetchedProducts;
+      notifyListeners();
+    } catch (error) {
+      throw (error);
+    }
+  }
+
   Future<void> addProduct(Product newProduct) async {
     if (newProduct == null) return Future.error('Provided product is empty.');
-
-    final url = Uri.https(
-        'flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app',
-        '/products.json');
 
     try {
       final response = await http.post(url,
