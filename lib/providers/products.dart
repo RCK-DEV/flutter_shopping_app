@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -117,7 +119,25 @@ class Products with ChangeNotifier {
   }
 
   void deleteProduct(String productId) {
-    _items.removeWhere((element) => element.id == productId);
+    final productUrl = Uri.https(
+        'flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app',
+        '/products/$productId.json');
+
+    final existingProductIndex = _items.indexWhere((element) => productId == element.id);
+    var existingProduct = _items[existingProductIndex];
+
+    http.delete(productUrl).then((response) {
+      if (response.statusCode >= 400) {
+        throw HttpException('Could not delete product. Server error occurred.');
+      } else {
+        existingProduct = null;
+      }
+    }).catchError((error) {
+      _items.insert(existingProductIndex, existingProduct); // Rollback deletion
+      notifyListeners();
+    });
+
+    _items.removeAt(existingProductIndex);
     notifyListeners();
   }
 }
