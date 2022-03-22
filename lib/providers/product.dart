@@ -27,6 +27,7 @@ class Product with ChangeNotifier {
         '/products/$id.json');
 
     var previousIsFavoriteState = isFavorite;
+    isFavorite = !isFavorite;
 
     http
         .patch(productUrl,
@@ -35,10 +36,11 @@ class Product with ChangeNotifier {
               'description': description,
               'price': price,
               'imageUrl': imageUrl,
-              'isFavorite': !isFavorite,
+              'isFavorite': isFavorite,
             }))
         .then((response) {
       if (response.statusCode >= 400) {
+        isFavorite = previousIsFavoriteState;
         throw HttpException('Could not delete product. Server error occurred.');
       } else {
         previousIsFavoriteState = null;
@@ -46,7 +48,6 @@ class Product with ChangeNotifier {
       }
     });
 
-    isFavorite = !isFavorite;
     notifyListeners();
   }
 }

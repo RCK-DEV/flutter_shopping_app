@@ -125,6 +125,7 @@ class Products with ChangeNotifier {
 
     final existingProductIndex = _items.indexWhere((element) => productId == element.id);
     var existingProduct = _items[existingProductIndex];
+    _items.removeAt(existingProductIndex);
 
     http.delete(productUrl).then((response) {
       if (response.statusCode >= 400) {
@@ -137,7 +138,6 @@ class Products with ChangeNotifier {
       notifyListeners();
     });
 
-    _items.removeAt(existingProductIndex);
     notifyListeners();
   }
 }
