@@ -13,40 +13,44 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
-  bool _isInit = false;
-  bool _isLoading = false;
+  Future _ordersFeature;
+
+  Future _obtainOrdersFuture() {
+    return Provider.of<Orders>(context, listen: false).fetchAndSetOrders();
+  }
 
   @override
-  void didChangeDependencies() {
-    if (!_isInit) {
-      setState(() {
-        _isLoading = true;
-      });
-      Provider.of<Orders>(context).fetchAndSetOrders().then((value) {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-
-      _isInit = true;
-    }
-    super.didChangeDependencies();
+  void initState() {
+    _ordersFeature = _obtainOrdersFuture();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final orders = Provider.of<Orders>(context).orders;
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Your orders'),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: orders.length,
-              itemBuilder: (context, index) => OrderItem(orders[index]),
-            ),
+      body: FutureBuilder(
+          future: _ordersFeature,
+          builder: (ctx, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else {
+              if (snapshot.error != null) {
+                return Center(
+                  child: Text('Error occured while loading orders from the server.'),
+                );
+              } else {
+                return Consumer<Orders>(builder: (ctx, ordersProvider, child) {
+                  return ListView.builder(
+                    itemCount: ordersProvider.orders.length,
+                    itemBuilder: (context, index) => OrderItem(ordersProvider.orders[index]),
+                  );
+                });
+              }
+            }
+          }),
       drawer: AppDrawer(),
     );
   }
