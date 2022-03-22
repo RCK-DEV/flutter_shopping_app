@@ -79,43 +79,45 @@ class _EditProductScreenState extends State<EditProductScreen> {
       _isLoading = true;
     });
     bool existingProductEditOccured = _editedProduct.id != null;
-    if (existingProductEditOccured)
-      Provider.of<Products>(context, listen: false).updateProduct(_editedProduct);
-    else {
-      try {
+
+    try {
+      if (existingProductEditOccured) {
+        await Provider.of<Products>(context, listen: false).updateProduct(_editedProduct);
+      } else {
         await Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
-        Navigator.of(context).pop();
-      } catch (error) {
-        _errorOccured = true;
-        return showDialog<Null>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-                  title: Text('An error occured!'),
-                  content: Text(error.toString()),
-                  actions: [
-                    FlatButton(
-                      child: Text('Okay'),
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                      },
-                    )
-                  ],
-                ));
-      } finally {
-        if (_errorOccured) {
-          _initValues = {
-            'title': _editedProduct.title,
-            'description': _editedProduct.description,
-            'price': _editedProduct.price.toString(),
-            'imageUrl': '',
-          };
-          _imageUrlController.text = _editedProduct.imageUrl; // Closes AlertDialog
-          _errorOccured = false;
-        }
-        setState(() {
-          _isLoading = false;
-        });
       }
+
+      Navigator.of(context).pop();
+    } catch (error) {
+      _errorOccured = true;
+      return showDialog<Null>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+                title: Text('An error occured!'),
+                content: Text(error.toString()),
+                actions: [
+                  FlatButton(
+                    child: Text('Okay'),
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                    },
+                  )
+                ],
+              ));
+    } finally {
+      if (_errorOccured) {
+        _initValues = {
+          'title': _editedProduct.title,
+          'description': _editedProduct.description,
+          'price': _editedProduct.price.toString(),
+          'imageUrl': '',
+        };
+        _imageUrlController.text = _editedProduct.imageUrl; // Closes AlertDialog
+        _errorOccured = false;
+      }
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
