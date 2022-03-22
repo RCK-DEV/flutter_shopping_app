@@ -72,7 +72,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.didChangeDependencies();
   }
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     if (!_formState.currentState.validate()) return;
     _formState.currentState.save();
     setState(() {
@@ -81,8 +81,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
     bool existingProductEditOccured = _editedProduct.id != null;
     if (existingProductEditOccured)
       Provider.of<Products>(context, listen: false).updateProduct(_editedProduct);
-    else
-      Provider.of<Products>(context, listen: false).addProduct(_editedProduct).catchError((error) {
+    else {
+      try {
+        await Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+        Navigator.of(context).pop();
+      } catch (error) {
         _errorOccured = true;
         return showDialog<Null>(
             context: context,
@@ -93,29 +96,27 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     FlatButton(
                       child: Text('Okay'),
                       onPressed: () {
-                        Navigator.of(ctx).pop(); // Closes AlertDialog
+                        Navigator.of(ctx).pop();
                       },
                     )
                   ],
                 ));
-      }).then((_) {
-        setState(() {
-          _isLoading = false;
-        });
-
-        if (!_errorOccured) {
-          Navigator.of(context).pop();
-        } else {
+      } finally {
+        if (_errorOccured) {
           _initValues = {
             'title': _editedProduct.title,
             'description': _editedProduct.description,
             'price': _editedProduct.price.toString(),
             'imageUrl': '',
           };
-          _imageUrlController.text = _editedProduct.imageUrl;
+          _imageUrlController.text = _editedProduct.imageUrl; // Closes AlertDialog
           _errorOccured = false;
         }
-      });
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override

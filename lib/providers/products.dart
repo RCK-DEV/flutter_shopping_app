@@ -42,31 +42,33 @@ class Products with ChangeNotifier {
 
   Product findById(String id) => _items.firstWhere((product) => product.id == id);
 
-  Future<void> addProduct(Product newProduct) {
+  Future<void> addProduct(Product newProduct) async {
     if (newProduct == null) return Future.error('Provided product is empty.');
+
     final url = Uri.https(
         'flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app',
         '/products.json');
 
-    return http
-        .post(url,
-            body: json.encode({
-              'title': newProduct.title,
-              'description': newProduct.description,
-              'price': newProduct.price,
-              'imageUrl': newProduct.imageUrl,
-              'isFavorite': newProduct.isFavorite,
-            }))
-        .then((response) {
+    try {
+      final response = await http.post(url,
+          body: json.encode({
+            'title': newProduct.title,
+            'description': newProduct.description,
+            'price': newProduct.price,
+            'imageUrl': newProduct.imageUrl,
+            'isFavorite': newProduct.isFavorite,
+          }));
+
       _items.add(Product(
           id: json.decode(response.body)['name'],
           title: newProduct.title,
           description: newProduct.description,
           price: newProduct.price,
           imageUrl: newProduct.imageUrl));
-
       notifyListeners();
-    });
+    } catch (error) {
+      throw error;
+    }
   }
 
   void updateProduct(Product product) {
