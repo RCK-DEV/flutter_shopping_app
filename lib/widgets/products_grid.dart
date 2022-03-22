@@ -30,6 +30,9 @@ class ProductsGrid extends StatelessWidget {
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
       ),
+      // Here i added a nested Provider of Product (not Products) to
+      // listen to updates for a single product. For example when the isFavorite
+      // field is changed. This is not tracked inside the Products provider.
       itemBuilder: (context, index) => ChangeNotifierProvider.value(
         value: products[index],
         child: ProductItem(),

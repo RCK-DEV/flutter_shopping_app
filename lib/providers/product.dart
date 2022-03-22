@@ -1,4 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import '../models/http_exception.dart';
 
 class Product with ChangeNotifier {
   final String id;
@@ -18,6 +22,30 @@ class Product with ChangeNotifier {
   });
 
   void toggleFavoriteStatus() {
+    final productUrl = Uri.https(
+        'flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app',
+        '/products/$id.json');
+
+    var previousIsFavoriteState = isFavorite;
+
+    http
+        .patch(productUrl,
+            body: json.encode({
+              'title': title,
+              'description': description,
+              'price': price,
+              'imageUrl': imageUrl,
+              'isFavorite': !isFavorite,
+            }))
+        .then((response) {
+      if (response.statusCode >= 400) {
+        throw HttpException('Could not delete product. Server error occurred.');
+      } else {
+        previousIsFavoriteState = null;
+        notifyListeners();
+      }
+    });
+
     isFavorite = !isFavorite;
     notifyListeners();
   }
