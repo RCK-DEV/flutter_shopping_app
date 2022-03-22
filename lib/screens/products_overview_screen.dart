@@ -21,6 +21,8 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _isFavorite = false;
   bool _isInit = false;
   bool _isLoading = false;
+  bool _failedFetchingProductsFromServer = false;
+  String _errorMessage = '';
 
   @override
   void didChangeDependencies() {
@@ -32,6 +34,12 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         setState(() {
           _isLoading = false;
         });
+      }).catchError((error) {
+        setState(() {
+          _isLoading = false;
+        });
+        _failedFetchingProductsFromServer = true;
+        _errorMessage = error;
       });
 
       _isInit = true;
@@ -60,7 +68,11 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body: _isLoading ? Center(child: CircularProgressIndicator()) : ProductsGrid(_isFavorite),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _failedFetchingProductsFromServer
+              ? Center(child: Text(_errorMessage))
+              : ProductsGrid(_isFavorite),
     );
   }
 

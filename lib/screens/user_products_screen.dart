@@ -32,36 +32,40 @@ class UserProductsScreen extends StatelessWidget {
         ],
       ),
       drawer: AppDrawer(),
-      body: Platform.isAndroid
-          ? RefreshIndicator(
-              onRefresh: () => _refreshProducts(context),
-              child: Padding(
-                padding: EdgeInsets.all(8),
-                child: ListView.builder(
-                    itemCount: products.length,
-                    itemBuilder: ((context, index) {
-                      return Column(
-                        children: [
-                          UserProductItem(
-                              products[index].id, products[index].title, products[index].imageUrl)
-                        ],
-                      );
-                    })),
-              ),
+      body: products.length == 0
+          ? Center(
+              child: Text('No products yet.'),
             )
-          : Padding(
-              padding: EdgeInsets.all(8),
-              child: CustomScrollView(
-                slivers: [
-                  CupertinoSliverRefreshControl(onRefresh: () => _refreshProducts(context)),
-                  SliverList(
-                      delegate: SliverChildBuilderDelegate(((context, index) {
-                    return UserProductItem(
-                        products[index].id, products[index].title, products[index].imageUrl);
-                  }), childCount: products.length))
-                ],
-              ),
-            ),
+          : Platform.isAndroid
+              ? RefreshIndicator(
+                  onRefresh: () => _refreshProducts(context),
+                  child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: ListView.builder(
+                        itemCount: products.length,
+                        itemBuilder: ((context, index) {
+                          return Column(
+                            children: [
+                              UserProductItem(products[index].id, products[index].title,
+                                  products[index].imageUrl)
+                            ],
+                          );
+                        })),
+                  ),
+                )
+              : Padding(
+                  padding: EdgeInsets.all(8),
+                  child: CustomScrollView(
+                    slivers: [
+                      CupertinoSliverRefreshControl(onRefresh: () => _refreshProducts(context)),
+                      SliverList(
+                          delegate: SliverChildBuilderDelegate(((context, index) {
+                        return UserProductItem(
+                            products[index].id, products[index].title, products[index].imageUrl);
+                      }), childCount: products.length))
+                    ],
+                  ),
+                ),
     );
   }
 }
