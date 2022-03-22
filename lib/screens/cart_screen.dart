@@ -5,14 +5,30 @@ import '../providers/cart.dart' show Cart;
 import '../widgets/cart_item.dart';
 import '../providers/orders.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   static const routeName = '/cart';
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  bool _isLoading = false;
+  bool _isEmpty = true;
 
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
 
-    print('CartScreen Widget tree rebuild..');
+    if (cart != null && cart.itemCount > 0) {
+      setState(() {
+        _isEmpty = false;
+      });
+    } else {
+      setState(() {
+        _isEmpty = true;
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -61,19 +77,29 @@ class CartScreen extends StatelessWidget {
               backgroundColor: Theme.of(context).primaryColor,
             ),
             FlatButton(
-              child: Text('ORDER NOW'),
-              onPressed: () {
-                Provider.of<Orders>(context, listen: false).addOrder(
-                  cart.items.values.toList(),
-                  cart.totalAmount,
-                );
-                cart.clear();
-              },
+              child: _isLoading ? Center(child: CircularProgressIndicator()) : Text('ORDER NOW'),
+              onPressed: _isEmpty ? null : () => handlePlaceOrder(cart),
               textColor: Theme.of(context).primaryColor,
             )
           ],
         ),
       ),
     );
+  }
+
+  void handlePlaceOrder(Cart cart) {
+    setState(() {
+      _isLoading = true;
+    });
+
+    Provider.of<Orders>(context, listen: false)
+        .addOrder(
+      cart.items.values.toList(),
+      cart.totalAmount,
+    )
+        .then((response) {
+      _isLoading = false;
+      cart.clear();
+    });
   }
 }

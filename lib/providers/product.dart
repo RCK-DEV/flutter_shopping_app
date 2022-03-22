@@ -32,10 +32,6 @@ class Product with ChangeNotifier {
     http
         .patch(productUrl,
             body: json.encode({
-              'title': title,
-              'description': description,
-              'price': price,
-              'imageUrl': imageUrl,
               'isFavorite': isFavorite,
             }))
         .then((response) {

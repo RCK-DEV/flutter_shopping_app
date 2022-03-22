@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import '../providers/cart.dart';
@@ -23,18 +25,71 @@ class Orders with ChangeNotifier {
 
   // Prevents mutating _orders directly
   List<OrderItem> get orders {
-    return [..._orders];
+    return [..._orders.reversed];
   }
 
-  void addOrder(List<CartItem> cartProducts, double total) {
+  Future<void> fetchAndSetOrders() async {
+    final url = Uri.https(
+        'flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app',
+        '/orders.json');
+
+    try {
+      final response = await http.get(url);
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+
+      if (extractedData == null) return;
+
+      final List<OrderItem> fetchedOrderItems = [];
+
+      extractedData.forEach((orderId, orderItemData) {
+        final Iterable rawCartItems = json.decode(orderItemData['products']);
+
+        final List<CartItem> cartItems = List<CartItem>.from(rawCartItems.map((item) => CartItem(
+              id: item['id'],
+              title: item['title'],
+              quantity: item['quantity'],
+              price: item['price'],
+            )));
+
+        final OrderItem orderItem = OrderItem(
+          id: orderId,
+          amount: orderItemData['amount'],
+          products: cartItems,
+          dateTime: DateTime.parse(orderItemData['dateTime']),
+        );
+
+        fetchedOrderItems.add(orderItem);
+      });
+      _orders = fetchedOrderItems;
+      notifyListeners();
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
+    final url = Uri.https(
+        'flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app',
+        '/orders.json');
+
+    final dateTime = DateTime.now();
+
+    final response = await http.post(url,
+        body: json.encode({
+          'amount': total,
+          'products': json.encode(cartProducts),
+          'dateTime': dateTime.toString(),
+        }));
+
     _orders.insert(
         0,
         OrderItem(
-          id: DateTime.now().toString(),
+          id: json.decode(response.body)['name'],
           amount: total,
           products: cartProducts,
-          dateTime: DateTime.now(),
+          dateTime: dateTime,
         ));
+
     notifyListeners();
   }
 }
