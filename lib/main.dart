@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
         title: _appTitle,
         theme: theme,
         routes: routes,
+        home: AuthScreen(),
       ),
     );
   }
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
       ChangeNotifierProvider(create: (context) => Products()),
       ChangeNotifierProvider(create: (context) => Cart()),
       ChangeNotifierProvider(create: (context) => Orders()),
+      ChangeNotifierProvider(create: (context) => Auth()),
     ];
   }
 
@@ -50,6 +52,7 @@ class MyApp extends StatelessWidget {
       CartScreen.routeName: (context) => CartScreen(),
       UserProductsScreen.routeName: (context) => UserProductsScreen(),
       EditProductScreen.routeName: (context) => EditProductScreen(),
+      AuthScreen.routeName: (context) => AuthScreen(),
     };
   }
 }
