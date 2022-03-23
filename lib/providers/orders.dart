@@ -22,6 +22,9 @@ class OrderItem {
 
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = []; // _ == private field.
+  final String authToken;
+
+  Orders(this.authToken, this._orders);
 
   // Prevents mutating _orders directly
   List<OrderItem> get orders {
@@ -29,9 +32,8 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> fetchAndSetOrders() async {
-    final url = Uri.https(
-        'flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app',
-        '/orders.json');
+    final url = Uri.parse(
+        'https://flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app/orders.json?auth=$authToken');
 
     final response = await http.get(url);
     if (response.statusCode >= 400) {
@@ -68,9 +70,8 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    final url = Uri.https(
-        'flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app',
-        '/orders.json');
+    final url = Uri.parse(
+        'https://flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app/orders.json?auth=$authToken');
 
     final dateTime = DateTime.now();
 

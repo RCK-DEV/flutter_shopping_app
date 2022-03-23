@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/auth.dart';
 import '../screens/product_detail_screen.dart';
 import '../providers/product.dart';
 import '../providers/cart.dart';
@@ -22,7 +23,7 @@ class ProductItem extends StatelessWidget {
             fit: BoxFit.cover,
           ),
           footer: GridTileBar(
-            leading: buildFavoriteButton(),
+            leading: buildFavoriteButton(context),
             title: Text(
               product.title,
               textAlign: TextAlign.center,
@@ -59,11 +60,13 @@ class ProductItem extends StatelessWidget {
     );
   }
 
-  Consumer<Product> buildFavoriteButton() {
+  Consumer<Product> buildFavoriteButton(BuildContext context) {
+    final auth = Provider.of<Auth>(context).token;
+
     return Consumer<Product>(
       builder: (context, product, _) {
         return IconButton(
-          onPressed: () => product.toggleFavoriteStatus(),
+          onPressed: () => product.toggleFavoriteStatus(auth),
           icon: Icon(product.isFavorite ? Icons.favorite : Icons.favorite_border),
           color: Theme.of(context).colorScheme.secondary,
         );
