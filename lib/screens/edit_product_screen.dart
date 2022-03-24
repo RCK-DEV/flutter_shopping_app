@@ -238,12 +238,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             Expanded(
                               child: TextFormField(
                                 validator: (value) {
-                                  if (value.isEmpty) return 'Please enter an image URL.';
+                                  final imageUrl =
+                                      RegExp(r'(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)');
 
-                                  if (!value.startsWith('http') && !value.startsWith('https'))
-                                    return 'Please enter a valid URL.';
-
-                                  if (!value.endsWith('.jpg') && !value.endsWith('.jpeg'))
+                                  if (!imageUrl.hasMatch(value))
                                     return 'Please enter a valid image URL.';
 
                                   return null;
