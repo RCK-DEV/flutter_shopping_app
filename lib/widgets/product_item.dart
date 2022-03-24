@@ -61,12 +61,13 @@ class ProductItem extends StatelessWidget {
   }
 
   Consumer<Product> buildFavoriteButton(BuildContext context) {
-    final auth = Provider.of<Auth>(context).token;
+    final token = Provider.of<Auth>(context).token;
+    final userId = Provider.of<Auth>(context).userId;
 
     return Consumer<Product>(
       builder: (context, product, _) {
         return IconButton(
-          onPressed: () => product.toggleFavoriteStatus(auth),
+          onPressed: () => product.toggleFavoriteStatus(token, userId),
           icon: Icon(product.isFavorite ? Icons.favorite : Icons.favorite_border),
           color: Theme.of(context).colorScheme.secondary,
         );

@@ -7,32 +7,44 @@ import './product.dart';
 
 class Products with ChangeNotifier {
   final String authToken;
+  final String userId;
   List<Product> _items = [];
 
-  Products(this.authToken, this._items);
+  Products(this.authToken, this.userId, this._items);
 
   List<Product> get items => [..._items];
 
   Product findById(String id) => _items.firstWhere((product) => product.id == id);
 
   Future<void> fetchAndSetProducts() async {
-    final url = Uri.parse(
+    final productsUrl = Uri.parse(
         'https://flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app/products.json?auth=$authToken');
+    final userFavoritesUrl = Uri.parse(
+        'https://flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app/userFavorites/$userId.json?auth=$authToken');
+
     try {
-      final response = await http.get(url);
-      if (response.statusCode >= 400) {
+      final productsResponse = await http.get(productsUrl);
+      final userFavoritesResponse = await http.get(userFavoritesUrl);
+
+      if (productsResponse.statusCode >= 400 || userFavoritesResponse.statusCode >= 400) {
         throw ('Failed to fetch products from server.');
       }
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+
+      final extractedProductsData = json.decode(productsResponse.body) as Map<String, dynamic>;
       final List<Product> fetchedProducts = [];
-      extractedData.forEach((productId, productData) {
+      final extractedUserFavoritesData = json.decode(userFavoritesResponse.body);
+
+      extractedProductsData.forEach((productId, productData) {
         final Product product = Product(
-            id: productId,
-            title: productData['title'],
-            description: productData['description'],
-            price: productData['price'],
-            imageUrl: productData['imageUrl'],
-            isFavorite: productData['isFavorite']);
+          id: productId,
+          title: productData['title'],
+          description: productData['description'],
+          price: productData['price'],
+          imageUrl: productData['imageUrl'],
+          isFavorite: extractedUserFavoritesData == null
+              ? false
+              : extractedUserFavoritesData[productId] ?? false,
+        );
 
         fetchedProducts.add(product);
       });
@@ -54,7 +66,7 @@ class Products with ChangeNotifier {
             'description': newProduct.description,
             'price': newProduct.price,
             'imageUrl': newProduct.imageUrl,
-            'isFavorite': newProduct.isFavorite,
+            // 'isFavorite': newProduct.isFavorite,
           }));
 
       _items.add(Product(

@@ -21,19 +21,14 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  Future<void> toggleFavoriteStatus(String authToken) async {
+  Future<void> toggleFavoriteStatus(String authToken, String userId) async {
     final productUrl = Uri.parse(
-        'https://flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json?auth=$authToken');
+        'https://flutter-shopping-app-97d29-default-rtdb.europe-west1.firebasedatabase.app/userFavorites/$userId/$id.json?auth=$authToken');
 
     var previousIsFavoriteState = isFavorite;
     isFavorite = !isFavorite;
 
-    http
-        .patch(productUrl,
-            body: json.encode({
-              'isFavorite': isFavorite,
-            }))
-        .then((response) {
+    http.put(productUrl, body: json.encode(isFavorite)).then((response) {
       if (response.statusCode >= 400) {
         isFavorite = previousIsFavoriteState;
         throw HttpException('Could not delete product. Server error occurred.');
