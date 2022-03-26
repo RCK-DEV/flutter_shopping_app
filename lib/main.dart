@@ -21,7 +21,14 @@ class MyApp extends StatelessWidget {
             title: _appTitle,
             theme: theme,
             routes: routes,
-            home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+            home: auth.isAuth
+                ? ProductsOverviewScreen()
+                : FutureBuilder(
+                    future: auth.tryAutoLogIn(),
+                    builder: (ctx, authResultSnapshot) =>
+                        authResultSnapshot.connectionState == ConnectionState.waiting
+                            ? SplashScreen()
+                            : AuthScreen()),
           );
         },
       ),

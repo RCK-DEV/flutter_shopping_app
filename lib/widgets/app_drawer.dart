@@ -20,8 +20,15 @@ class AppDrawer extends StatelessWidget {
           Divider(),
           buildDrawerItem(context, Icons.person, 'Your products', UserProductsScreen.routeName),
           Divider(),
-          buildDrawerItem(context, Icons.logout, 'Logout', null,
-              Provider.of<Auth>(context, listen: false).logOut),
+          ListTile(
+            leading: Icon(Icons.logout),
+            title: Text('Logout'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacementNamed('/');
+              Provider.of<Auth>(context, listen: false).logOut();
+            },
+          )
         ],
       ),
     );
@@ -34,21 +41,12 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  ListTile buildDrawerItem(BuildContext context, IconData icon, String title,
-      [String routeName = null, VoidCallback callbackFunction = null, bool closeDrawer = false]) {
+  ListTile buildDrawerItem(BuildContext context, IconData icon, String title, String routeName) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
       onTap: () {
-        if (callbackFunction != null) {
-          callbackFunction();
-        }
-        if (routeName != null) {
-          Navigator.of(context).pushReplacementNamed(routeName);
-        }
-        if (closeDrawer) {
-          Navigator.of(context).pop();
-        }
+        Navigator.of(context).pushReplacementNamed(routeName);
       },
     );
   }
